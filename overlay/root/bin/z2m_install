@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+
+# shellcheck disable=SC1091
+. /etc/rc.subr && load_rc_config zwavejs2mqtt
+: "${zwavejs2mqtt_app_dir:=/usr/local/share/zwavejs2mqtt}"
+
+workdir="$(mktemp -dt build_src)"
+
+get_latest_release() {
+  local tarball_url tarball
+  tarball_url="$(curl -s https://api.github.com/repos/zwave-js/zwavejs2mqtt/releases/latest | grep tarball_url | cut -d : -f 2,3 | tr -d \",)"
+  tarball="${workdir}/source.tar.gz"
+  # shellcheck disable=SC2086
+  wget -O "${tarball}" ${tarball_url}
+  tar -xzf "${tarball}" -C "${workdir}"
+  cd "${workdir}"/*zwavejs2mqtt* || return 1
+}
+
+build_z2m() {
+  ## This build function is based on zwavejs2mqtt/docker/Dockerfile
+  local updateDevices
+  local zwavejs="https://github.com/zwave-js/node-zwave-js"
+  npm config set unsafe-perm true
+  npm install
+  npm run build
+  npm prune --production
+  rm -rf -- \
+      build \
+      docker \
+      docs \
+      index.html \
+      kubernetes \
+      kustomization.yaml \
+      package-lock.json \
+      package.sh \
+      src \
+      static\
+      store \
+      stylesheets
+  if [ -n "${updateDevices}" ]; then
+    git clone "${zwavejs}" \
+    rsync -av node-zwave-js/packages/config/config/devices/ './node_modules/@zwave-js/config/config/devices' \
+    rm -r -- node-zwave-js
+  fi
+}
+
+install_z2m() {
+  local app_dir="${zwavejs2mqtt_app_dir}"
+  ## clean-up additional files and folders
+  find . -mindepth 1 -name '.*' -exec rm -r -- "{}" +
+  ## remove existing version
+  if [ -d "${app_dir}" ]; then
+    rm -r -- "${app_dir}"
+  fi
+  ## copy z2m build to app directory
+  install -d -m 775 -- "${app_dir}" \
+  && cp -r . "${app_dir}"
+}
+
+get_latest_release \
+&& build_z2m \
+&& install_z2m \
+|| echo -e "\ninstall failed :("
+rm -r -- "${workdir}"

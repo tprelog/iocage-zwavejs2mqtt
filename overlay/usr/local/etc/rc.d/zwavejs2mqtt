@@ -1,0 +1,83 @@
+#!/bin/sh
+#
+# PROVIDE: zwavejs2mqtt
+# REQUIRE: LOGIN
+# KEYWORD: shutdown
+#
+# shellcheck disable=SC1091,2034,2154
+#
+
+name="zwavejs2mqtt"
+rcvar="${name}_enable"
+
+host_ip="$(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')"
+
+. /etc/rc.subr && load_rc_config ${name}
+
+: "${zwavejs2mqtt_enable:="NO"}"
+: "${zwavejs2mqtt_rc_debug:="OFF"}"
+: "${zwavejs2mqtt_user:="root"}"
+: "${zwavejs2mqtt_group:="wheel"}"
+: "${zwavejs2mqtt_path:="${PATH}:/usr/local/sbin:/usr/local/bin"}"
+: "${zwavejs2mqtt_app_dir:="/usr/local/share/zwavejs2mqtt"}"
+: "${zwavejs2mqtt_store_dir:="/usr/local/etc/zwavejs2mqtt"}"
+: "${zwavejs2mqtt_host:="${host_ip}"}"
+: "${zwavejs2mqtt_port:="8091"}"
+
+export PATH="${zwavejs2mqtt_path}"
+[ -n "${zwavejs2mqtt_cpath:-}" ] && export CPATH="${zwavejs2mqtt_cpath}"
+[ -n "${zwavejs2mqtt_library_path:-}" ] && export LIBRARY_PATH="${zwavejs2mqtt_library_path}"
+
+export HOST="${zwavejs2mqtt_host}"
+export PORT="${zwavejs2mqtt_port}"
+export STORE_DIR="${zwavejs2mqtt_store_dir}"
+[ -n "${zwavejs2mqtt_network_key:-}" ] && export NETWORK_KEY="${zwavejs2mqtt_network_key}"
+
+umask "${zwavejs2mqtt_umask:-022}"
+
+pidfile_child="/var/run/${name}.pid"
+pidfile="/var/run/${name}_daemon.pid"
+logfile="/var/log/${name}_daemon.log"
+
+command="/usr/sbin/daemon"
+
+start_precmd=${name}_precmd
+zwavejs2mqtt_precmd() {
+  install -g "${zwavejs2mqtt_group}" -m 664 -o "${zwavejs2mqtt_user}" -- /dev/null "${logfile}"
+  install -g "${zwavejs2mqtt_group}" -m 664 -o "${zwavejs2mqtt_user}" -- /dev/null "${pidfile}"
+  install -g "${zwavejs2mqtt_group}" -m 664 -o "${zwavejs2mqtt_user}" -- /dev/null "${pidfile_child}"
+  if [ ! -d "${zwavejs2mqtt_store_dir}" ]; then
+    install -d -g "${zwavejs2mqtt_group}" -m 775 -o "${zwavejs2mqtt_user}" -- "${zwavejs2mqtt_store_dir}"
+  fi
+  rc_flags="-f -o ${logfile} -P ${pidfile} -p ${pidfile_child} npm start --prefix ${zwavejs2mqtt_app_dir}"
+}
+
+start_postcmd=${name}_poststart
+zwavejs2mqtt_poststart() {
+  sleep 1
+  run_rc_command status
+}
+
+status_cmd=${name}_status
+zwavejs2mqtt_status() {
+  # shellcheck disable=SC2039
+  local _http_
+  if [ -n "${rc_pid}" ]; then
+    : "${zwavejs2mqtt_secure:="NO"}" # This is only a cosmetic variable
+    checkyesno zwavejs2mqtt_secure && _http_="https" || _http_="http"
+    echo "${name} is running as pid ${rc_pid}."
+    echo "${_http_}://${zwavejs2mqtt_host}:${zwavejs2mqtt_port}"
+  else
+    echo "${name} is not running."
+    return 1
+  fi
+}
+
+stop_postcmd=${name}_poststop
+zwavejs2mqtt_poststop() {
+  rm -f -- "${pidfile_child}"
+  rm -f -- "${pidfile}"
+}
+
+checkyesno zwavejs2mqtt_rc_debug && rc_debug="ON"
+run_rc_command "${1}"
