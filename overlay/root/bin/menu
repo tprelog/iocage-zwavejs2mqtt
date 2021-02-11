@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+
+# A menu driven shell script, hacked together from internet samples and other shit.
+# Nothing more than a shortcut to execute some basic service commands.
+
+# ----------------------------------
+# Step #2: User defined function
+# ----------------------------------
+
+show_banner_0() {
+  clear
+  echo "${blu}"
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  echo "         Manage the Z-WaveJS 2 MQTT Service           "
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  echo -ne "${end}"
+}
+
+service_menu() {
+  ## Show a menu and run basic commands for the plugin's service.
+  local _cmd_ _commands_
+  _commands_="status restart upgrade start stop"
+  ## Prompt for user input and run command when provided.
+  PS3=""$'\n'"${blu}Select: ${end}" ; echo
+  select _cmd_ in "exit_menu" ${_commands_}; do
+    case "${_cmd_}" in
+      "exit_menu")
+        goodbye ; exit 0
+        ;;
+      "upgrade")
+        /root/bin/z2m-upgrade
+        pause ; break
+        ;;
+      "status"|"restart"|"start"|"stop")
+        service "${1}" "${_cmd_}"
+        pause ; break
+        ;;
+      ## Anything else is an invalid option.
+      *) echo "Sorry, that is not an option" && sleep 1 
+        ;;
+    esac
+  done
+}
+
+# shellcheck disable=SC2034
+pause() {
+  echo ; read -rp "Press ENTER to continue..." fackEnterKey
+}
+
+goodbye() {
+  echo -e "${end}"
+  clear ; exit
+}
+
+load_colors() {
+  blu=$'\e[38;5;39m'
+  end=$'\e[0m'
+} ; load_colors # Only loaded once
+
+# ----------------------------------------------
+# Step #3: Trap CTRL+C, CTRL+Z and quit singles
+# ----------------------------------------------
+
+# Define and use traps to clean up all temp files
+#  Trap on --- use 'kill -l' to list all
+#   1 = SIGHUP (Hangup of controlling terminal or death of parent)
+#   2 = SIGINT (Interrupted by the keyboard)
+#   3 = SIGQUIT (Quit signal from keyboard)
+#   6 = SIGABRT (Aborted by abort(3))
+#
+## It's a trap! goodbye
+trap goodbye 1 2 3 6
+
+# -----------------------------------
+# Step #4: Main logic - infinite loop
+# ------------------------------------
+
+while true; do
+  show_banner_0 && service_menu "zwavejs2mqtt"
+done
