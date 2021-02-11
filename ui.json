@@ -1,3 +1,4 @@
 {
-	"adminportal": "http://%%IP%%:8091"
+	"adminportal": "http://%%IP%%:8091",
+	"docurl": "https://github.com/tprelog/iocage-zwavejs2mqtt/wiki"
 }
