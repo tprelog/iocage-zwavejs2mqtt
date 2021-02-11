@@ -18,6 +18,7 @@ host_ip="$(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9
 : "${zwavejs2mqtt_rc_debug:="OFF"}"
 : "${zwavejs2mqtt_user:="root"}"
 : "${zwavejs2mqtt_group:="wheel"}"
+: "${zwavejs2mqtt_daemon_log_enable:="NO"}"
 : "${zwavejs2mqtt_path:="${PATH}:/usr/local/sbin:/usr/local/bin"}"
 : "${zwavejs2mqtt_app_dir:="/usr/local/share/zwavejs2mqtt"}"
 : "${zwavejs2mqtt_store_dir:="/usr/local/etc/zwavejs2mqtt"}"
@@ -43,13 +44,17 @@ command="/usr/sbin/daemon"
 
 start_precmd=${name}_precmd
 zwavejs2mqtt_precmd() {
-  install -g "${zwavejs2mqtt_group}" -m 664 -o "${zwavejs2mqtt_user}" -- /dev/null "${logfile}"
   install -g "${zwavejs2mqtt_group}" -m 664 -o "${zwavejs2mqtt_user}" -- /dev/null "${pidfile}"
   install -g "${zwavejs2mqtt_group}" -m 664 -o "${zwavejs2mqtt_user}" -- /dev/null "${pidfile_child}"
   if [ ! -d "${zwavejs2mqtt_store_dir}" ]; then
     install -d -g "${zwavejs2mqtt_group}" -m 775 -o "${zwavejs2mqtt_user}" -- "${zwavejs2mqtt_store_dir}"
   fi
-  rc_flags="-f -o ${logfile} -P ${pidfile} -p ${pidfile_child} npm start --prefix ${zwavejs2mqtt_app_dir}"
+  if checkyesno zwavejs2mqtt_daemon_log_enable; then
+    install -g "${zwavejs2mqtt_group}" -m 664 -o "${zwavejs2mqtt_user}" -- /dev/null "${logfile}"
+    rc_flags="-f -o ${logfile} -P ${pidfile} -p ${pidfile_child} npm start --prefix ${zwavejs2mqtt_app_dir}"
+  else
+    rc_flags="-f -P ${pidfile} -p ${pidfile_child} npm start --prefix ${zwavejs2mqtt_app_dir}"
+  fi
 }
 
 start_postcmd=${name}_poststart
