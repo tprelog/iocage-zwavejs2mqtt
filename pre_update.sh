@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# version 1.0-r20210211
 
 # shellcheck disable=SC1091
 . /etc/rc.subr && load_rc_config

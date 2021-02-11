@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# version 1.0-r20210211
 
 # shellcheck disable=SC1091
 . /etc/rc.subr && load_rc_config
@@ -25,4 +26,4 @@ upgrade_service() {
 checkyesno plugin_enable_pkglist && install_pkglist
 checkyesno plugin_upgrade_service && upgrade_service
 
-echo "TODO: Update the PLUGIN_INFO"
+echo -e "post_update finished\n"

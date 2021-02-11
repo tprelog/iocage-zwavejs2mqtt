@@ -4,8 +4,10 @@
 # REQUIRE: LOGIN
 # KEYWORD: shutdown
 #
-# shellcheck disable=SC1091,2034,2154
+# VERSION: 1.0.20210211
 #
+
+# shellcheck disable=SC1091,2034,2154
 
 name="zwavejs2mqtt"
 rcvar="${name}_enable"
@@ -23,7 +25,7 @@ host_ip="$(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9
 : "${zwavejs2mqtt_app_dir:="/usr/local/share/zwavejs2mqtt"}"
 : "${zwavejs2mqtt_store_dir:="/usr/local/etc/zwavejs2mqtt"}"
 : "${zwavejs2mqtt_host:="${host_ip}"}"
-: "${zwavejs2mqtt_port:="8091"}"
+: "${zwavejs2mqtt_port:=8091}"
 
 export PATH="${zwavejs2mqtt_path}"
 [ -n "${zwavejs2mqtt_cpath:-}" ] && export CPATH="${zwavejs2mqtt_cpath}"
