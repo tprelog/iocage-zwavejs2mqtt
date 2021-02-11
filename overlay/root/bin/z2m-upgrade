@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+/root/bin/z2m-install \
+&& service zwavejs2mqtt restart

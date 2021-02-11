@@ -1,4 +1,0 @@
-#!/bin/sh
-
-/root/bin/z2m_install \
-&& service zwavejs2mqtt restart
