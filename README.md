@@ -2,6 +2,6 @@
 
 Artifact file(s) for [zwavejs2mqtt][1]
 
-:warning: This plugin is experimental
+- This is a TrueNAS Core Community Plugin
 
 [1]: https://zwave-js.github.io/zwavejs2mqtt/
