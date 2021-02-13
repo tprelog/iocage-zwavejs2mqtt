@@ -11,7 +11,7 @@ show_banner_0() {
   clear
   echo "${blu}"
   echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-  echo "         Manage the Z-WaveJS 2 MQTT Service           "
+  echo "         MANAGE THE Z-WAVE JS TO MQTT SERVICE         "
   echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   echo -ne "${end}"
 }
@@ -28,7 +28,7 @@ service_menu() {
         goodbye ; exit 0
         ;;
       "upgrade")
-        /root/bin/z2m-upgrade
+        /root/bin/upgrade_zj2m
         pause ; break
         ;;
       "status"|"restart"|"start"|"stop")

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-plugin_version="1.0.20210211"
+plugin_version="1.0.20210212"
 sysrc plugin_initialized="1.0.$(date +%Y%m%d)"
 sysrc plugin_version="${plugin_version}"
 
@@ -9,7 +9,7 @@ sysrc zwavejs2mqtt_app_dir=/usr/local/share/zwavejs2mqtt
 sysrc zwavejs2mqtt_store_dir=/usr/local/etc/zwavejs2mqtt
 
 ## Install the jail's primary service, zwavejs2mqtt
-/root/bin/z2m-install
+/root/bin/install_zj2m
 
 ## Enable and start the service
 sysrc zwavejs2mqtt_enable="YES"

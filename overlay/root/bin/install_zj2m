@@ -16,7 +16,7 @@ get_latest_release() {
   cd "${workdir}"/*zwavejs2mqtt* || return 1
 }
 
-build_z2m() {
+build_zj2m() {
   ## This build function is based on zwavejs2mqtt/docker/Dockerfile
   local updateDevices
   local zwavejs="https://github.com/zwave-js/node-zwave-js"
@@ -44,7 +44,7 @@ build_z2m() {
   fi
 }
 
-install_z2m() {
+install_zj2m() {
   local app_dir="${zwavejs2mqtt_app_dir}"
   ## clean-up additional files and folders
   find . -mindepth 1 -name '.*' -exec rm -r -- "{}" +
@@ -58,7 +58,7 @@ install_z2m() {
 }
 
 get_latest_release \
-&& build_z2m \
-&& install_z2m \
+&& build_zj2m \
+&& install_zj2m \
 || echo -e "\ninstall failed :("
 rm -r -- "${workdir}"
