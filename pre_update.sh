@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# version 1.0-r20210212
 
 # shellcheck disable=SC1091
 . /etc/rc.subr && load_rc_config
@@ -20,3 +19,6 @@ upgrade_service() {
 }
 
 checkyesno plugin_upgrade_service && upgrade_service
+
+## Exit 0, else a Plugin UPDATE will fail here
+exit 0

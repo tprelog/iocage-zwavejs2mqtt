@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
+version="1.20210219"
 
-plugin_version="1.0.20210212"
-sysrc plugin_initialized="1.0.$(date +%Y%m%d)"
-sysrc plugin_version="${plugin_version}"
+sysrc plugin_initialized="${version}"
+sysrc plugin_version="${version}"
 
 ## Configure the jail's primary service using rcvars
 sysrc zwavejs2mqtt_app_dir=/usr/local/share/zwavejs2mqtt

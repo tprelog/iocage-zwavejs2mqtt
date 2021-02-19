@@ -28,7 +28,7 @@ service_menu() {
         goodbye ; exit 0
         ;;
       "upgrade")
-        /root/bin/upgrade_zj2m
+        /root/bin/install_zj2m
         pause ; break
         ;;
       "status"|"restart"|"start"|"stop")

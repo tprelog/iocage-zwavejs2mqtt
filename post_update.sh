@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# version 1.0-r20210212
+version="1.20210219"
 
 # shellcheck disable=SC1091
 . /etc/rc.subr && load_rc_config
@@ -19,11 +19,11 @@ upgrade_service() {
   ## If enabled, upgrade zwavejs2mqtt during a Plugin UPDATE
   ## Use `sysrc plugin_upgrade_service=YES` to enable
   /root/bin/install_zj2m \
-  && sysrc zwavejs2mqtt_enable="YES" \
-  && service zwavejs2mqtt start
+  && sysrc zwavejs2mqtt_enable="YES"
 }
 
 checkyesno plugin_enable_pkglist && install_pkglist
 checkyesno plugin_upgrade_service && upgrade_service
 
-echo -e "post_update finished\n"
+## Exit 0, else a Plugin UPDATE will fail here
+echo ; sysrc plugin_version="${version}" ; exit
