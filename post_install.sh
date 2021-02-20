@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-version="1.20210219"
 
+version="$(cat /root/.PLUGIN_VERSION)"
 sysrc plugin_initialized="${version}"
 sysrc plugin_version="${version}"
 
