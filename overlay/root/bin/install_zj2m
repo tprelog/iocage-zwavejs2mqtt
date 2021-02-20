@@ -2,30 +2,34 @@
 
 # shellcheck disable=SC1091
 . /etc/rc.subr && load_rc_config zwavejs2mqtt
-: "${zwavejs2mqtt_app_dir:=/usr/local/share/zwavejs2mqtt}"
+
+: "${updateDevices:-}"
 
 workdir="$(mktemp -dt build_src)"
 
 get_latest_release() {
-  local tarball_url tarball
-  tarball_url="$(curl -s https://api.github.com/repos/zwave-js/zwavejs2mqtt/releases/latest | grep tarball_url | cut -d : -f 2,3 | tr -d \",)"
-  tarball="${workdir}/source.tar.gz"
+  local tarball_url
+  local release="https://api.github.com/repos/zwave-js/zwavejs2mqtt/releases/latest"
+  tarball_url="$(curl -s ${release} | grep tarball_url | cut -d : -f 2,3 | tr -d \",)"
   echo -ne "\nDownloading latest release..."
   # shellcheck disable=SC2086
-  wget --quiet -O "${tarball}" ${tarball_url}
-  tar -xzf "${tarball}" -C "${workdir}"
-  cd "${workdir}"/*zwavejs2mqtt* || return 1
-  echo "  OK"
+  curl -sL ${tarball_url} | tar -xzf - -C "${workdir}"
+  cd "${workdir}"/*zwavejs2mqtt* || goodbye 1 "failed to get release" ; echo " OK"
 }
 
 build_zj2m() {
   ## This build function is based on zwavejs2mqtt/docker/Dockerfile
-  local updateDevices
-  local zwavejs="https://github.com/zwave-js/node-zwave-js"
   npm config set unsafe-perm true
-  npm install
-  npm run build
-  npm prune --production
+  npm install --no-optional
+  if [ -n "${updateDevices}" ]; then
+    echo -n "updating devices..."
+    local zwavejs="https://github.com/zwave-js/node-zwave-js/archive/master.tar.gz"
+    curl -sL ${zwavejs} | tar -xzf - \
+      --strip=5 -C './node_modules/@zwave-js/config/config/devices' \
+      "node-zwave-js-master/packages/config/config/devices/" ; echo " ok"
+  fi
+  npm run build \
+    && npm prune --production
   rm -rf -- \
       build \
       docker \
@@ -39,37 +43,34 @@ build_zj2m() {
       static\
       store \
       stylesheets
-  if [ -n "${updateDevices}" ]; then
-    git clone "${zwavejs}"
-    rsync -av node-zwave-js/packages/config/config/devices/ './node_modules/@zwave-js/config/config/devices'
-    rm -rf -- node-zwave-js
-  fi
+  ## Remove all (dot) .files and .folders from build_src/*zwavejs2mqtt*
+  find . -mindepth 1 -name '.*' -exec rm -rf -- "{}" +
 }
 
-copy_zj2m() {
-  local app_dir="${zwavejs2mqtt_app_dir}"
-  ## remove all (dot) .files and .folders from zj2m build_src directory
-  find . -mindepth 1 -name '.*' -exec rm -rf -- "{}" +
-  ## if it's enabled and running, stop the zwavejs2mqtt service and set it to restart
+install_zj2m() {
+  local app_dir="${zwavejs2mqtt_app_dir:-/usr/local/share/zwavejs2mqtt}"
+  ## If it's enabled and running, stop the zwavejs2mqtt service and set it to restart
   if sysrc zwavejs2mqtt_enable &>/dev/null && service zwavejs2mqtt status &>/dev/null; then
-    local restart='YES'
-    service zwavejs2mqtt stop || err 1 "failed to stop service"
-  fi
-  ## if present, remove existing app directory
+    local restart='YES' ; echo
+    service zwavejs2mqtt stop || goodbye 1 "failed to stop service"
+  fi ## If present, remove the existing app_directory
   if [ -d "${app_dir}" ]; then
     rm -rf -- "${app_dir}"
-  fi
-  ## install new app directory and copy zj2m build_src to it
-  install -d -m 775 -- "${app_dir}" \
-  && cp -Rf . "${app_dir}"
-  ## restart the service, if it was previously set to restart
+  fi ## Install the app_directory, copy build_src/*zwavejs2mqtt* to it, and chown it
+  install -d -m 775 -- "${app_dir}" && cp -R . "${app_dir}" \
+    && chown -R "${zwavejs2mqtt_user:-root}":"${zwavejs2mqtt_group:-wheel}" "${app_dir}"
+  ## Restart the service, if it was previously set to do so
   if [ "${restart}" == 'YES' ]; then
-    service zwavejs2mqtt start
+    service zwavejs2mqtt start || goodbye 1 "failed to restart service"
   fi
 }
 
+goodbye() {
+  rm -rf -- "${workdir}"
+  echo "${2:-}" ; exit "${1:-0}"
+} ; trap goodbye 1 2 3 6
+
 get_latest_release \
-&& build_zj2m \
-&& copy_zj2m \
-|| echo -e "\ninstall failed :("
-rm -rf -- "${workdir}"
+  && build_zj2m \
+  && install_zj2m
+goodbye
