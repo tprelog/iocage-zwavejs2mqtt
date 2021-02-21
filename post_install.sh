@@ -18,3 +18,6 @@ service zwavejs2mqtt start
 ## Start the console menu, upon login as user "root"
 echo -e "\n# Start console menu after login." >> /root/.login
 echo "if ( -x /root/bin/menu ) menu" >> /root/.login
+
+## Gererate PLUGIN_INFO
+/root/bin/plugin_info

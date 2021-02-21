@@ -23,7 +23,7 @@ upgrade_service() {
 # shellcheck disable=SC2154
 version="${plugin_version%%.*}"
 if [ "${version}" == '1' ]; then
-  plugin_upgrade_service='YES'
+  true #plugin_upgrade_service='YES'
 elif [ "${version}" == '2' ]; then
   true
 else
@@ -34,3 +34,6 @@ checkyesno plugin_enable_pkglist && install_pkglist
 checkyesno plugin_upgrade_service && upgrade_service
 
 sysrc plugin_version="$(cat /root/.PLUGIN_VERSION)"
+
+## Gererate PLUGIN_INFO
+/root/bin/plugin_info
