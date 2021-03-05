@@ -23,7 +23,7 @@ upgrade_service() {
 # shellcheck disable=SC2154
 version="${plugin_version%%.*}"
 if [ "${version}" == '1' ]; then
-  true #plugin_upgrade_service='YES'
+  plugin_upgrade_service='YES'
 elif [ "${version}" == '2' ]; then
   true
 else
