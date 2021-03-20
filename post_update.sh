@@ -15,8 +15,8 @@ install_pkglist() {
 }
 
 upgrade_service() {
-  ## If enabled, upgrade zwavejs2mqtt during a Plugin UPDATE
-  ## Use `sysrc plugin_upgrade_service=YES` to enable
+  ## Enabled by default, upgrade zwavejs2mqtt during a Plugin UPDATE
+  ## Use `sysrc plugin_upgrade_service=NO` to disable
   /root/bin/install_zj2m
 }
 
