@@ -3,7 +3,7 @@
 # shellcheck disable=SC1091
 . /etc/rc.subr && load_rc_config
 : "${plugin_enable_pkglist:="NO"}"
-: "${plugin_upgrade_service:="NO"}"
+: "${plugin_upgrade_service:="YES"}"
 
 install_pkglist() {
   ## If enabled, re-install packages from a pkglist, after a Plugin UPDATE
@@ -19,16 +19,6 @@ upgrade_service() {
   ## Use `sysrc plugin_upgrade_service=YES` to enable
   /root/bin/install_zj2m
 }
-
-# shellcheck disable=SC2154
-version="${plugin_version%%.*}"
-if [ "${version}" == '1' ]; then
-  plugin_upgrade_service='YES'
-elif [ "${version}" == '2' ]; then
-  true
-else
-  err 1 "you shouldn't be here"
-fi
 
 checkyesno plugin_enable_pkglist && install_pkglist
 checkyesno plugin_upgrade_service && upgrade_service
