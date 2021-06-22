@@ -3,6 +3,7 @@
 # shellcheck disable=SC1091
 . /etc/rc.subr && load_rc_config zwavejs2mqtt
 
+# shellcheck disable=SC2046
 if [ ! $(which jq) ] || [ ! $(which yarn) ]; then
   pkg install -y jq yarn-node14
 fi
@@ -32,8 +33,9 @@ build_zj2m() {
       --strip=5 -C './node_modules/@zwave-js/config/config/devices' \
       "node-zwave-js-master/packages/config/config/devices/" ; echo " ok"
   fi
+# shellcheck disable=SC2046
   yarn run build \
-    && yarn remove $(cat package.json | jq -r '.devDependencies | keys | join(" ")')
+    && yarn remove $(jq -r '.devDependencies | keys | join(" ")' package.json)
   rm -rf -- \
       build \
       docker \
