@@ -20,8 +20,8 @@ get_latest_release() {
 
 build_zj2m() {
   ## This build function is based on zwavejs2mqtt/docker/Dockerfile
-  yarn config set unsafe-perm true && yarn install --network-timeout=300000
-  yarn install --ignore-optional
+  export YARN_HTTP_TIMEOUT=300000
+  yarn install --immutable
   if [ -n "${updateDevices}" ]; then
     echo -n "updating devices..."
     curl -sL ${zwavejs} | tar -xzf - \
