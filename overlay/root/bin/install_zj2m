@@ -8,14 +8,14 @@
 
 workdir="$(mktemp -dt build_src)"
 
-check_node_version() (
+check_node_version() {
   ## Service fails to install using node 17. This reverts
   ## back to node 14 until the plugin manifest is updated
   v=$(node --version)
-  if [ "${v}%%.*}" != "v14" ]; then
+  if [ "${v%%.*}" != "v14" ]; then
     pkg install -y node14 npm-node14 yarn-node14
   fi
-)
+}
 
 get_latest_release() {
   local tarball_url
