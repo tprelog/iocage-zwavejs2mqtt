@@ -19,8 +19,8 @@ Artifact file(s) for [zwavejs2mqtt][1]
 
 [![x][plugins-shield]][plugins-link]
 
-:warning: **This plugin is not actively maintained**
-
 [![x][zwjs-12.2]][results-12.2]
 
 [![x][zwjs-13.0]][results-13.0]
+
+:warning: **This plugin is not actively maintained** - At this time I am no longer using TrueNAS CORE or any iocage jails. As a consequence I may not be aware of, and proactively fixing any issues that could arise. If you're having trouble with the installation of this plugin you can still open an issue and I will do my best to help. While no further development is currently planned, I will continue trying to support this plugin for as long as it remains feasible.
