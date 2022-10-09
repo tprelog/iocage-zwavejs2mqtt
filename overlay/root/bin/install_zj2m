@@ -10,12 +10,12 @@ workdir="$(mktemp -dt build_src)"
 
 get_latest_release() {
   local tarball_url
-  local release="https://api.github.com/repos/zwave-js/zwavejs2mqtt/releases/latest"
+  local release="https://api.github.com/repos/zwave-js/zwave-js-ui/releases/latest"
   tarball_url="$(curl -s ${release} | grep tarball_url | cut -d : -f 2,3 | tr -d \",)"
   echo -ne "\nDownloading latest release..."
   # shellcheck disable=SC2086
   curl -sL ${tarball_url} | tar -xzf - -C "${workdir}"
-  cd "${workdir}"/*zwavejs2mqtt* || goodbye 1 "failed to get release" ; echo " OK"
+  cd "${workdir}"/*zwave-js-ui* || goodbye 1 "failed to get release" ; echo " OK"
 }
 
 build_zj2m() {
